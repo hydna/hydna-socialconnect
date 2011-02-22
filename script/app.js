@@ -97,6 +97,7 @@ var app = {
         
         this.facebookapi.logout(function(response) {
             $('#main-panel').fadeOut(function() {
+			    $('#status').html( "Please login ..." );
                 $('#login').show();
                 $('#login-panel').fadeIn();
             });

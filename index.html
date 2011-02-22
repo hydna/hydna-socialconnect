@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>Social Connect Demo</title>
+
+    <link rel="stylesheet" href="./style/master.css" type="text/css" media="screen" />
+
+    <script type="text/javascript" src="http://static.hydna.net/js/hydna.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="./script/socialconnect.js"></script>
+    <script type="text/javascript" src="./script/app.js"></script>
+</head>
+<body>
+    <!-- BEGIN FACEBOOK EMBED -->
+    <div id="fb-root"></div>
+
+    <script type="text/javascript" src="http://connect.facebook.net/en_US/all.js"></script>
+    <script type="text/javascript">
+    app.init();
+    </script>
+    <!-- END FACEBOOK EMBED -->
+
+    <div id="login-panel">
+        <span id="status">Fetching session...</span>
+        <a id="login" style="display: none" href="#">Log in</a>
+    </div>
+
+    <div id="main-panel">
+        <div id="user" class="user">
+            <span id="user-name">Loading name ...</span>
+            <a href="#" id="logout">Log out</a>
+        </div>
+        <ul id="friends">
+            <li id="loading-friends">Waiting for friends to connect ...</li>
+        </ul>
+    </div>
+</body>
+</html>

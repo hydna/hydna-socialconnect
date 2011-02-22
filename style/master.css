@@ -1,0 +1,174 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+    display: block;
+}
+body {
+    line-height: 1;
+}
+ol, ul {
+    list-style: none;
+}
+blockquote, q {
+    quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content: '';
+    content: none;
+}
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    font-family: 'lucida grande', sans-serif;
+    margin: 0;
+    padding: 0;
+    font-size: 62.5%;
+    line-height: 1;
+    background: #FFF url(../images/logo.png) right bottom no-repeat;
+}
+
+/* Login Panel
+--------------------------------------------------------------------------- */
+
+#login-panel {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 500px;
+    margin-top: -40px;
+    margin-left: -250px;
+    text-align: center;
+    font-size: 1.3em;
+}
+
+#login {
+    width: 66px;
+    height: 22px;
+    display: block;
+    background: transparent url(../images/login.png) center center no-repeat;
+    text-indent: -10000px;
+    margin: 10px auto;
+}
+
+#status {
+    display: block;
+}
+
+/* Main Panel
+--------------------------------------------------------------------------- */
+
+#main-panel {
+    width: 500px;
+    margin: 60px auto 0;
+    display: none;
+}
+
+/* User */
+
+.user {
+    position: relative;
+    padding: 15px;
+    background: #EEE;
+    margin-bottom: 5px;
+}
+
+.user .photo {
+    width: 50px;
+    height: 50px;
+    line-height: normal;
+    display: block;
+}
+
+.user .name {
+    position: absolute;
+    top: 20px;
+    left: 75px;
+    font-size: 1.5em;
+}
+
+.user .poke,
+.user #logout {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 1.2em;
+    display: inline-block;
+    text-decoration: none;
+    padding: 6px 10px;
+    font-weight: bold;
+    line-height: normal;
+}
+
+#logout {
+    background: #FF5033;
+    color: #FFF;
+}
+
+.user .poke {
+    background: #333;
+    color: #FFF;
+}
+
+#user {
+    background: #333;
+    color: #FFF;
+}
+
+/* Loading Friends */
+
+#loading-friends {
+    font-size: 1.3em;
+    text-align: center;
+    padding: 20px 0 100px;
+    background: #FFF url(../images/loader.gif) center center no-repeat;
+}
+
+/* Clear Floats
+--------------------------------------------------------------------------- */
+
+.clear:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+.clear {
+    display: inline-block;
+}
+
+/* Hide from IE Mac \*/
+.clear {
+    display: block;
+}
+/* End hide from IE Mac */

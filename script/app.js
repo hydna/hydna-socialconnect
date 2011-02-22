@@ -1,8 +1,8 @@
 var app = {
     settings: {
         appid: '112642802144454',
-        domainaddr: 'demo.hydna.net',
-        rendevousaddr: 'demo.hydna.net/10000',
+        domainaddr: 'livescenen.hydna.net:7010',
+        rendevousaddr: 'livescenen.hydna.net:7010/10000',
         permissions: { perms:'read_stream,publish_stream' }
     },
     

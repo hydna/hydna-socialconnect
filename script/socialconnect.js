@@ -1,176 +1,455 @@
-var app = {
-    settings: {
-        appid: '112642802144454',
-        domainaddr: 'demo.hydna.net',
-        rendevousaddr: 'demo.hydna.net/10000',
-        permissions: { perms:'read_stream,publish_stream' }
-    },
+window.SocialConnect = (function() {
+
+var LOOKUP_COMMAND      = "LU";
+var CONNECT_COMMAND     = "HI";
+var DISCONNECT_COMMAND  = "BY";
+var ALREADY_CONNECTED   = "ALREADY_CONNECTED";
+
+var MAX_CHUNK_SIZE      = 200;
+var COMMAND_SIZE        = 2;
+
+function SocialConnect( domainaddr, rendevousaddr ){
     
-    facebookchannel: null,
-    facebookapi: null,
-    facebookconnected: false,
+    var self = this;
+    self._me_stream = null;
+    self._domain_addr = domainaddr;
+    self._rendevous_addr = rendevousaddr;
+    self._connected = false;
+    self._connecting = false;
+    self._fetching = false;
+    self._connected_friends = new Array();
+    self._connected_friends_streams = {};
+    self._friends = new Array();
+    self._chunks = new Array();
+    self._chunks_index = 0;
+    self._chunks_fetched = 0;
+    self._servicetag = "";
+}
+
+SocialConnect.prototype.connect = function( id, friends, servicetag ){
     
-    init: function() {
-        var self = this;
-        this.facebookchannel = new SocialConnect(this.settings.domainaddr, this.settings.rendevousaddr);
-        this.facebookapi = FB;
+    if( id.length > 2 && this._connecting == false && this._connected == false ){
         
-        this.facebookapi.init({
- 		     appId  : this.settings.appid,
-		     status : true,
-		     cookie : true,
-		     xfbml  : true
-		});
-
-        $('#logout').live('click', function(event) {
-            event.preventDefault();
-            self.logout();
-        });
-
-        $('#login').live('click', function(event) {
-            event.preventDefault();
-	        self.login(self.settings.permissions);
-        });
-
-        $('.poke').live('click', function(event) {
-            event.preventDefault();
-            $(this).siblings('.photo').effect("shake", { times: 8, distance: 5 }, 30);
-            var to = $(this).parents('.user').attr('id');
-            self.facebookchannel.send(to);
-        });
-		
-		this.check_session();
-    },
-    
-    check_session: function() {
-      var self = this;
-      
-      this.facebookapi.getLoginStatus(function(response) {
-			if (response.session) {
-                // jk: there is a bug in the current getLoginStatus method
-                // Facebook JavaScript SDK -- it doesn't return permissions as
-                // expected. The best we can do is manually ask.
-                self.facebookapi.api({
-                    method : 'fql.query',
-                    query : 'SELECT status_update,photo_upload,sms,offline_access,email,create_event,rsvp_event,publish_stream,read_stream,share_item,create_note,bookmarked,tab_added FROM permissions WHERE uid=' + self.facebookapi.getSession().uid
-                },
-                function(response) {
-                    var perms = [];
-                    for(perm in response[0]) {
-                        if(response[0][perm] == '1') perms.push(perm);
-                    }
-
-                    self.facebookconnected = true;
-
-                    self.fetchuserdetails();
-
-                });
-			} else {
-			    $('#status').html( "Please log in ..." );
-                $('#login').show();
+        var self = this;
+        
+        this._connecting = true;
+			
+		// check if id has servicetag already
+		if( id.substr(0, servicetag.length ) != servicetag ){
+			this._userid = servicetag + id;
+		}else{
+			this._userid = id;
+		}
+			
+		// add service tag in not added already
+		for( var i in friends ){
+			if( friends[i].id.substr(0, servicetag.length ) != servicetag ){
+				friends[i].id = servicetag + friends[i].id;
 			}
-		});
-    },
+		}
+			
+		this._friends = friends;
+		this._servicetag = servicetag;
+		this._connecting = true;
+
+		this._me_stream = new HydnaStream( this._rendevous_addr, 'we', this._userid );
+		
+		this._me_stream.onerror = function( evt ){
+		    // handle errors
+		    if( evt.message == ALREADY_CONNECTED ){
+		        self.handleAlreadyConnected();
+		    }
+		    
+		}
+		
+		this._me_stream.onsignal = function( msg, flag ){
+		    self.handleUserSignal( msg, flag );
+	    }
+	    
+		this._me_stream.onopen = function(){
+		    self.handleUserOpen();
+	    }
+
+		return true;
+	}
+		
+	return false;
+}
+
+SocialConnect.prototype.handleAlreadyConnected = function(){
     
-    login: function(opts) {
-        var self = this;
-        
-        if (!opts) opts = {};
-
-		this.facebookapi.login(function(response) {
-            if (response.status == 'connected') {
-                self.facebookapi.getLoginStatus(function(response) {
-                    if(response.session) {
-                        self.facebookconnected = true;
-                        self.fetchuserdetails();
-                    }
-                }, true);
-            }
-		},opts);
-    },
+    this.onerror && this.onerror( ALREADY_CONNECTED );
     
-    logout: function() {
-        var self = this;
-        
-	    this.facebookchannel.destroy();
-	    this.facebookconnected = false;
-        
-        this.facebookapi.logout(function(response) {
-            $('#main-panel').fadeOut(function() {
-			    $('#status').html( "Please log in ..." );
-                $('#login').show();
-                $('#login-panel').fadeIn();
-            });
-            // handle logout complete
-        });
-    },
+}
+
+SocialConnect.prototype.handleUserData = function( msg ){
+    this.onmessage && this.onmessage( msg );
+}
+
+SocialConnect.prototype.handleUserOpen = function(){
     
-    fetchuserdetails: function() {
-        var self = this;
-        this.facebookapi.api('/me', function(user) {
-            $('#user').html([
-                '<img src="', 'http://graph.facebook.com/', user.id ,'/picture', '" class="photo"/>',
-                '<span class="name">', user.name, '</span>',
-                '<a href="#" id="logout">Log Out</a>'
-            ].join('')).attr('rel', user.id);
-
-            $('#login-panel').fadeOut(function() {
-                $('#main-panel').fadeIn();
-            });
-          
-            self.fetchfriends();
-        });
-    },
+    this._connecting = false;
+	
+	if( !this._connected ){
+	
+		this._connected = true;
+	
+		this.lookup();	
+	}
     
-    fetchfriends: function() {
-        var self = this;
-        
-        this.facebookapi.api('/me/friends', function(response) {
-            if (response.data.length > 0) {
-                self.connectfriends(response.data);
-            }
-        });
-    },
-    
-    connectfriends: function(friends) {
-        var self = this;
-        
-        this.facebookchannel.connect(this.facebookapi.getSession().uid, friends, "fb");
+}
 
-        // a friend connects
-        this.facebookchannel.onfriendopen = function(user) {
-            $('#loading-friends').hide();
-            var friend = $([
-                '<li id="', user.id, '" class="user clear">',
-                '<img src="', 'http://graph.facebook.com/', user.id ,'/picture', '" class="photo"/>',
-                '<span class="name">', user.name, '</span>',
-                '<a class="poke" href="#">❮ Poke</a>',
-                '</li>'
-            ].join(''));
-            friend.hide();
-            $('#friends').prepend(friend);
-            friend.fadeIn();
-        }
+SocialConnect.prototype.handleUserSignal = function( msg, flag ){
+	
+	if( msg.length >= COMMAND_SIZE ){
+	
+        var type = msg.substr( 0, COMMAND_SIZE );
+	
+		var data = '';
+	
+		if( msg.length > COMMAND_SIZE ){
+			data = msg.substr( COMMAND_SIZE, msg.length );
+		}
+	
+		switch( type ){
+		
+			case LOOKUP_COMMAND:
+			
+				if( data.length > 0 ){
+					
+					var raw = data.split( ",");
+			
+					for( var i in raw ){
+				
+						var keyval = raw[i].split("=");
+				
+						this._connected_friends.push( { id: keyval[0], stream: keyval[1] } );
 
-        // when a friend logs out or closes app
-        this.facebookchannel.onfriendclose = function(user) {
-            $('#' + user.id).fadeOut(function() {
-                $(this).remove();
-                if ($('#friends li:not(#loading-friends)').length == 0) {
-                    $('#loading-friends').show();
-                }
-            });
-        }
+					}
+			
+					this._chunks_fetched++;
+			
+					if( this._chunks_fetched == this._chunks.length ){
+				
+						this._chunks = new Array();
+						this._chunks_fetched = 0;
+						this._chunks_index = 0;
+				
+						this._fetching = false;
+				
+						this.openFriendStreams( this._connected_friends );
+						
+						this.onlookup && this.onlookup( this._connected_friends.length );
+					}
+					
+				}else{
+					
+					this.onlookup && this.onlookup( 0 );
+					
+				}
+			
+			break;
+		    
+			case CONNECT_COMMAND:
 
-        // whenever lookup is complete
-        this.facebookchannel.onlookup = function(count) {
-        }
+				if( data.length > 0 ){
+				
+					var keyval = data.split( ",");
+			
+					if( keyval[0] != this._userid ){
+					
+						this.openFriendStream( keyval[0], keyval[1] );
+					}
+				}
+			
+			break;
+		}
+	}
+}
 
-        // when friend sends a message
-        this.facebookchannel.onfriendmessage = function(msg, user) {
-            if (msg == $('#user').attr('rel')) {
-                $('#user .photo').effect("shake", { times: 8, distance: 5 }, 30);
-            }
-        }
+/*
+* Send to all connected friends
+*/
+
+SocialConnect.prototype.send = function( msg ){
+    if( this._me_stream.readyState == HydnaStream.OPEN ){
+        this._me_stream.send( msg );
     }
-};
+}
+
+SocialConnect.prototype.lookup = function(){
+		
+    if( this._friends.length > 0 && this._fetching == false ){
+			
+		this._fetching = true;
+			
+		this._chunks = [];
+			
+		if( this._friends.length > MAX_CHUNK_SIZE ){
+		    
+		    console.log( "SocialConnect -> you have more then "+ MAX_CHUNK_SIZE +" friends" );
+				
+			var chunk_count = Math.round( (this._friends.length / MAX_CHUNK_SIZE) + .5 );
+			
+			console.log( "SocialConnect -> you have "+this._friends.length+" friends thats "+ chunk_count +" chunks." );
+				
+			for( var i = 0; i < chunk_count; i++ ){
+
+				var startindex = i * MAX_CHUNK_SIZE;
+				var endindex = Math.min( startindex + MAX_CHUNK_SIZE, this._friends.length );
+				
+				console.log( "SocialConnect -> startindex: "+ startindex +" , endindex: "+ endindex );
+					
+				this._chunks.push( this._friends.slice( startindex, endindex ) );
+			}
+				
+		}else{ // we are good to go in one chunk!
+			
+			this._chunks.push( this._friends.slice() );
+		}
+			
+		this._chunks_fetched = 0;
+		this._chunks_index = 0;
+			
+		this.performLookup( this._chunks[this._chunks_index] );
+		
+	}	
+}
+
+SocialConnect.prototype.performLookup = function( chunk ){
+	
+	if( chunk.length > 0 ){
+		
+		var lookup_str = LOOKUP_COMMAND;
+		var ids = new Array();
+		var count = chunk.length;
+
+		for( var i = 0; i < count; i++ ){
+		 	ids.push( chunk[i].id );
+		}
+		
+		lookup_str += ids.join(",");
+        
+        if( this._me_stream.readyState == HydnaStream.OPEN ){
+            
+		    this._me_stream.emit( lookup_str );
+		
+		    this._chunks_index++;
+		
+		    if( this._chunks_index < this._chunks.length ){
+			    this.performLookup(this._chunks[this._chunks_index]);
+		    }
+		}
+		
+		return true;
+	}
+	
+	return false;
+}
+
+SocialConnect.prototype.openFriendStreams = function( friends ){
+	for( var i in friends ){
+		this.openFriendStream( friends[i].id, friends[i].stream );
+	}
+}
+
+SocialConnect.prototype.removeStream = function( id ){
+    
+    if( this._connected_friends_streams[id] != null && this._connected_friends_streams[id] != undefined ){
+			
+		var conn = this._connected_friends_streams[id].stream;
+        conn.close();
+		
+		delete this._connected_friends_streams[id];
+	}
+}
+
+SocialConnect.prototype.openFriendStream = function( id, stream ){
+	
+	if( !this.isFriendListed(id) ){
+	    
+	    var self = this;
+	    
+		var fstream = new HydnaStream( this._domain_addr + "/" + stream, 'r', this._userid +","+ this._me_stream.uri.ch );
+		fstream.onerror = function( evt ){
+		    // need to add error callbacks
+		}
+		
+		fstream.onmessage = function( msg ){
+			self.handleFriendMessage( msg, self.getPropsForFriend( {id: id} ) );	    
+		}
+		
+		fstream.onsignal = function( msg, flag ){
+		    self.handleFriendSignal( msg );
+	    }
+		
+		fstream.onopen = function(){
+			
+			for( var i in self._connected_friends_streams ){
+				
+				if( self._connected_friends_streams[i].stream == fstream ){
+						
+					self._connected_friends_streams[i].connected = true;
+					
+					var id = self._connected_friends_streams[i].id;
+					
+					self.onfriendopen && self.onfriendopen( self.getPropsForFriend( {id: id} ) ); 
+						
+					break;
+				}
+			}
+		}
+		
+		fstream.onclose = function(){
+		    
+		    self.onfriendclose && self.onfriendclose( self.getPropsForFriend( {id: id} ) ); 
+		}
+
+		this._connected_friends_streams[id] = { id: id, stream: fstream, connected: false };
+	}
+}
+
+SocialConnect.prototype.getServiceTagNeutral = function( id ){
+	
+	if( id.substr(0, this._servicetag.length) == this._servicetag ){
+		id = id.substr( this._servicetag.length, id.length );
+	}
+	
+	return id;
+
+}
+
+SocialConnect.prototype.handleFriendSignal = function( msg ){
+	
+	if( msg.length >= COMMAND_SIZE ){
+	
+		var type = msg.substr( 0, COMMAND_SIZE );
+	
+		var data = '';
+	
+		if( msg.length > COMMAND_SIZE ){
+			data = msg.substr( COMMAND_SIZE, msg.length );
+		}
+	
+		switch( type ){
+		
+			case DISCONNECT_COMMAND:
+		
+				if( data.length > 0 ){
+			
+					var keyval = data.split( ",");
+		
+					if( this.isFriendListed( keyval[0] ) ){
+					
+						this.removeStream( keyval[0] );
+					
+						var id = keyval[0];
+						
+						this.onfriendclose && this.onfriendclose( this.getPropsForFriend( {id: id} ) ); 
+					
+					}
+				}
+			
+			break;
+		}
+	}
+}
+
+SocialConnect.prototype.handleFriendMessage = function( msg, user ){
+
+	this.onfriendmessage && this.onfriendmessage( msg, user ); 
+}
+
+SocialConnect.prototype.getConnectedFriends = function(){
+	
+	var friends = [];
+	
+	for( var i in this._connected_friends_streams ){
+		if( this._connected_friends_streams[i].connected ){
+			
+			var id = this._connected_friends_streams[i].id;
+			
+			var friendobj = { id: id };
+			
+			friendobj = this.getPropsForFriend( friendobj );
+			
+			friends.push( friendobj );
+		}
+	}
+	
+	return friends;
+}
+
+SocialConnect.prototype.getPropsForFriend = function( friend ){
+		
+	var fixedfriend = { id: friend.id };
+		
+	for( var i in this._friends ){
+			
+		if( this._friends[i].id == friend.id ){
+				
+			for( var j in this._friends[i] ){
+					
+				if( j != "id" ){
+						
+					fixedfriend[j] = this._friends[i][j];
+				}
+			}
+				
+			fixedfriend.id = this.getServiceTagNeutral( fixedfriend.id );
+				
+			return fixedfriend;
+		}
+	}
+		
+	return null;
+}
+
+SocialConnect.prototype.isFriendListed = function( id ){
+		
+	var realid = id;
+		
+	if( id.substr(0, this._servicetag.length) != this._servicetag ){
+		realid = this._servicetag + realid;
+	}
+		
+	if( this._connected_friends_streams[realid] != null && this._connected_friends_streams[realid] != undefined ){
+		return true;
+	}
+		
+	return false;	
+}
+
+SocialConnect.prototype.destroy = function(){
+	
+	if( this._connected ){
+		
+		if( this._me_stream != null ){
+			
+			this._me_stream.close();
+		}
+		
+		for( var i in this._connected_friends_streams ){
+			
+			var stream = this._connected_friends_streams[i].stream;
+			stream.close();
+			
+			this._connected_friends_streams[i] = null;
+		}
+		
+		this._connected = false;
+		this._connecting = false;
+		this._fetching = false;
+		this._connected_friends = new Array();
+		this._connected_friends_streams = {};
+		this._friends = new Array();
+		this._chunks = new Array();
+		this._chunks_index = 0;
+		this._chunks_fetched = 0;
+		
+	}
+	
+}
+
+return SocialConnect;
+})();

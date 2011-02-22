@@ -5,7 +5,7 @@ var CONNECT_COMMAND     = "HI";
 var DISCONNECT_COMMAND  = "BY";
 var ALREADY_CONNECTED   = "ALREADY_CONNECTED";
 
-var MAX_CHUNK_SIZE      = 500;
+var MAX_CHUNK_SIZE      = 100;
 var COMMAND_SIZE        = 2;
 
 function SocialConnect( domainaddr, rendevousaddr ){

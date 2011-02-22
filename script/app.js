@@ -66,7 +66,7 @@ var app = {
 
                 });
 			} else {
-			    $('#status').html( "Please login ..." );
+			    $('#status').html( "Please log in ..." );
                 $('#login').show();
 			}
 		});
@@ -97,7 +97,7 @@ var app = {
         
         this.facebookapi.logout(function(response) {
             $('#main-panel').fadeOut(function() {
-			    $('#status').html( "Please login ..." );
+			    $('#status').html( "Please log in ..." );
                 $('#login').show();
                 $('#login-panel').fadeIn();
             });

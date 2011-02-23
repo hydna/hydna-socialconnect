@@ -78,6 +78,7 @@ SocialConnect.prototype.connect = function( id, friends, servicetag ){
 
 SocialConnect.prototype.handleAlreadyConnected = function(){
     
+    alert("Errr");
     this.onerror && this.onerror( ALREADY_CONNECTED );
     
 }

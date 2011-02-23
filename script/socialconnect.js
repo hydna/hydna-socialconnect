@@ -56,7 +56,6 @@ SocialConnect.prototype.connect = function( id, friends, servicetag ){
 		
 		this._me_stream.onerror = function( evt ){
 		    // handle errors
-            console.log(evt);
 		    if( evt.error.message == ALREADY_CONNECTED ){
 		        self.handleAlreadyConnected();
 		    }
@@ -78,7 +77,8 @@ SocialConnect.prototype.connect = function( id, friends, servicetag ){
 }
 
 SocialConnect.prototype.handleAlreadyConnected = function(){
-    this.onerror && this.onerror( ALREADY_CONNECTED );
+    
+    this.onalreadyconnected && this.onalreadyconnected( ALREADY_CONNECTED );
     
 }
 
@@ -280,7 +280,6 @@ SocialConnect.prototype.openFriendStream = function( id, stream ){
 	    
 		var fstream = new HydnaStream( this._domain_addr + "/" + stream, 'r', this._userid +","+ this._me_stream.uri.ch );
 		fstream.onerror = function( evt ){
-            alert("Errr");
 		    // need to add error callbacks
 		}
 		

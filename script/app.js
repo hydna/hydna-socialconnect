@@ -41,8 +41,12 @@ var app = {
 		
 		this.check_session();
 
-        this.facebookchannel.onerror = function() {
-            alert("Already connected!");
+        this.facebookchannel.onalreadyconnected = function() {
+            $('#main-panel').fadeOut(function() {
+			    $('#status').html( "That user is already logged in ..." );
+                $('#login').show();
+                $('#login-panel').fadeIn();
+            });
         }
     },
     

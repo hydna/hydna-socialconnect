@@ -41,7 +41,7 @@ var app = {
 		
 		this.check_session();
 
-        this.facebookapi.onerror = function() {
+        this.facebookchannel.onerror = function() {
             alert("Already connected!");
         }
     },

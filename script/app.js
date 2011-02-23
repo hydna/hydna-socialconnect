@@ -42,7 +42,7 @@ var app = {
 		this.check_session();
 
         this.facebookapi.onerror = function() {
-            alert("Errr");
+            alert("Already connected!");
         }
     },
     

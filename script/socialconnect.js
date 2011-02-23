@@ -56,8 +56,8 @@ SocialConnect.prototype.connect = function( id, friends, servicetag ){
 		
 		this._me_stream.onerror = function( evt ){
 		    // handle errors
-            alert("Errr");
 		    if( evt.message == ALREADY_CONNECTED ){
+                alert("Errr");
 		        self.handleAlreadyConnected();
 		    }
 		    

@@ -118,7 +118,6 @@ SocialConnect.prototype.isConnected = function(){
 }
 
 SocialConnect.prototype.send = function(msg){
-    // send msg to friends, add to que of not connected
     if(this._connected){
         for(var id in this._connected_friends){
             var friend = this._connected_friends[id];
@@ -237,11 +236,11 @@ SocialConnect.prototype.getFriendProperties = function(id){
 SocialConnect.prototype.destroy = function(){
 	
 	if(this._connected){
-		if(this._me_channel !== null){
+        if(this._me_channel !== null){
             this._me_channel.onclose = null;
-			this._me_channel.close();
+            this._me_channel.close();
             this._me_channel = null;
-		}
+        }
 		
         for(var i in this._connected_friends){
             this._connected_friends[i].onclose = null;

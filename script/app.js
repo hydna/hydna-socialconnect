@@ -54,7 +54,7 @@ var app = {
                 $('#user .photo').effect("shake", { times: 8, distance: 5 }, 30);
             }
         }
-        
+         
         $('#logout').live('click', function(event) {
             event.preventDefault();
             self.logout();
@@ -73,41 +73,35 @@ var app = {
         });
         
         this.check_session();
-
     },
 
     check_session: function() {
       var self = this;
       
       this.facebookapi.getLoginStatus(function(response) {
-            if(response.status === "connected") {
-                // jk: there is a bug in the current getLoginStatus method
-                // Facebook JavaScript SDK -- it doesn't return permissions as
-                // expected. The best we can do is manually ask.
-                console.log(response);
-                /*self.facebook_uuid = response.authResponse.userID;
-                self.facebook_token = response.authResponse.accessToken;
-                */
-                console.log(self.facebookapi.getAuthResponse().userID);
-                self.facebookapi.api({
-                    method : 'fql.query',
-                    query : 'SELECT status_update,photo_upload,sms,offline_access,email,create_event,rsvp_event,publish_stream,read_stream,share_item,create_note,bookmarked,tab_added FROM permissions WHERE uid=' + self.facebookapi.getAuthResponse().userID
-                },
-                function(response) {
-                    var perms = [];
-                    for(perm in response[0]) {
-                        if(response[0][perm] == '1') perms.push(perm);
-                    }
-
-                    self.facebookconnected = true;
-                    self.fetchuserdetails();
+          if(response.status === "connected") {
+              // jk: there is a bug in the current getLoginStatus method
+              // Facebook JavaScript SDK -- it doesn't return permissions as
+              // expected. The best we can do is manually ask.
+              self.facebookapi.api({
+                  method : 'fql.query',
+                  query : 'SELECT status_update,photo_upload,sms,offline_access,email,create_event,rsvp_event,publish_stream,read_stream,share_item,create_note,bookmarked,tab_added FROM permissions WHERE uid=' + self.facebookapi.getAuthResponse().userID
+              },
+              function(response) {
+                  var perms = [];
+                  for(perm in response[0]) {
+                      if(response[0][perm] == '1') perms.push(perm);
+                  }
+                  
+                  self.facebookconnected = true;
+                  self.fetchuserdetails();
 
                 });
-            }else{
-                $('#status').html( "Please log in ..." );
-                $('#login').show();
-            }
-        });
+          }else{
+              $('#status').html("Please log in ...");
+              $('#login').show();
+          }
+      });
     },
     
     login: function(opts) {
@@ -175,8 +169,8 @@ var app = {
             }
         });
     }
-};
+}
 
 $(document).ready(function(){
-   app.init(); 
+    app.init(); 
 });

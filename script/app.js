@@ -132,7 +132,7 @@ var app = {
         this.facebookapi.logout(function(response) {
             $('#main-panel').fadeOut(function() {
 
-                $('#friends').html("");
+                $('#friends li:not(#loading-friends)').remove();
                 $('#loading-friends').show();
 
                 $('#status').html( "Please log in ..." );

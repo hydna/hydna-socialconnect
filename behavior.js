@@ -1,6 +1,7 @@
-ocialConnect behavior
-*
+/*
+* SocialConnect behavior
 */
+
 const ALREADY_CONNECTED = "already_connected";
 const INVALID_TOKEN = "invalid_token";
 const CLAIM_FIRST = "claim_first";
@@ -35,12 +36,8 @@ behavior('/facebook', {
 // token is facebook token
 behavior('/facebook/{uid}', {
     open: function(event) {
-        // also check mode
-        // check if owner, othwerwise emit to owner?
         event.domain.get("facebook:"+event.params.uid, function(err, value){
-            // if we get something back, this is already set
             if(!err && value != null){
-                // there is an owner just listen
                 event.connection.get("facebook-uid", function(err, value){
                     if(!err && value != null && value == event.params.uid){
                         event.deny("already_connected");
@@ -77,7 +74,6 @@ behavior('/facebook/{uid}', {
     },
     
     close: function(event){
-        // if you are owner remove owner from channel
         event.domain.get("facebook:"+event.params.uid, function(err, value){
             if(!err && value != null && value === event.connection.id){
                 event.domain.del("facebook:"+event.params.uid);

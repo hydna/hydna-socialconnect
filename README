@@ -1,11 +1,5 @@
-* user connects with their facebook uid
-* user is verified against social auth provider, facebook to begin with
-* user is checked if they are already connected
-* user friends are looked through emitting my contacts
-* I connect to my own stream, and broadcast
-* connects and disconnects are emited
-* private message by library? or a separate channel user1_user2
+## Hydna social connect ##
 
-// skaggivara_svrgwql_first@tfbnw.net - skaggivara - skaggivara first
-// skaggivara_eytgvwg_second@tfbnw.net - skaggivara - skaggivara second
+An example app using facebook connect and [hydna](http://hydna.com/) to connect your friends in real-time.
 
+Login with your facebook details [http://hydna.github.io/hydna-socialconnect](http://hydna.github.io/hydna-socialconnect) and then have one or more of your friends do the same.

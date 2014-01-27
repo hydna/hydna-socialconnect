@@ -133,6 +133,7 @@ var app = {
             $('#main-panel').fadeOut(function() {
 
                 $('#friends').html("");
+                $('#loading-friends').show();
 
                 $('#status').html( "Please log in ..." );
                 $('#login').show();

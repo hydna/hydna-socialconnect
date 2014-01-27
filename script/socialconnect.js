@@ -113,6 +113,10 @@ SocialConnect.prototype.connectPublic = function(){
     }
 }
 
+SocialConnect.prototype.isConnected = function(){
+    return this._connected;
+}
+
 SocialConnect.prototype.send = function(msg){
     // send msg to friends, add to que of not connected
     if(this._connected){
@@ -234,11 +238,13 @@ SocialConnect.prototype.destroy = function(){
 	
 	if(this._connected){
 		if(this._me_channel !== null){
+            this._me_channel.onclose = null;
 			this._me_channel.close();
             this._me_channel = null;
 		}
 		
         for(var i in this._connected_friends){
+            this._connected_friends[i].onclose = null;
 			this._connected_friends[i].close();
 			this._connected_friends[i] = null;
 		}

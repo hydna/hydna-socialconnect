@@ -49,7 +49,6 @@ var app = {
 
         // when friend sends a message
         this.facebookchannel.onfriendmessage = function(user, msg) {
-            console.log("msg incoming: "+ user.id+ ", "+msg);
             if (msg == $('#user').attr('rel')){
                 $('#user .photo').effect("shake", { times: 8, distance: 5 }, 30);
             }
@@ -132,6 +131,9 @@ var app = {
         
         this.facebookapi.logout(function(response) {
             $('#main-panel').fadeOut(function() {
+
+                $('#friends').html("");
+
                 $('#status').html( "Please log in ..." );
                 $('#login').show();
                 $('#login-panel').fadeIn();

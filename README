@@ -1,0 +1,8 @@
+* user connects with their facebook uid
+* user is verified against social auth provider, facebook to begin with
+* user is checked if they are already connected
+* user friends are looked through emitting my contacts
+* I connect to my own stream, and broadcast
+* connects and disconnects are emited
+* private message by library? or a separate channel user1_user2
+* possibly try oauth.io

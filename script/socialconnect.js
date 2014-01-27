@@ -1,19 +1,11 @@
 window.SocialConnect = (function() {
 
-// connect to your stream first
-// then connect to control channel for choosen network, listen for x, add to list of ids to check when friends are added
-// finally add "friends" to choosen network, check list of people who has connected while fetching friends connect to these, "owner" then receives an emit of me connecting. Same thing when user disconnects from "mystream" owner gets and emit. If owner closes stream, all users on stream receive emit of close.
-// test users:
-// skaggivara_svrgwql_first@tfbnw.net - skaggivara - skaggivara first
-// skaggivara_eytgvwg_second@tfbnw.net - skaggivara - skaggivara second
-
 var ALREADY_CONNECTED = "already_connected";
 var INVALID_TOKEN = "invalid_token";
 var CLAIM_FIRST = "claim_first";
 var AUTH_PROBLEM = "facebook_auth_error";
 
 var SUPPORTED_NETWORKS = ["facebook"];
-
 
 function SocialConnect(domainaddr, socialnetwork){
      

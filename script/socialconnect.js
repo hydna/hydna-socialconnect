@@ -40,7 +40,6 @@ SocialConnect.prototype.connect = function(uuid, token){
         }
 
         self._me_channel.onclose = function(event){
-            console.log(event);
             if(event.wasDenied){
                 self.onerror && self.onerror(event.reason);
             }
@@ -49,7 +48,6 @@ SocialConnect.prototype.connect = function(uuid, token){
         self._me_channel.onsignal = function(event){
             var msg = null;
             
-            console.log(event);
             try{
                 var msg = JSON.parse(event.data);
             }catch(e){}
@@ -96,8 +94,6 @@ SocialConnect.prototype.connectPublic = function(){
 
         self._public_channel.onsignal = function(event){
             var msg = null;
-
-            console.log("received event from public");
 
             try{
                 var msg = JSON.parse(event.data);

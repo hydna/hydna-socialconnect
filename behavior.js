@@ -40,7 +40,7 @@ behavior('/facebook/{uid}', {
             if(!err && value != null){
                 event.connection.get("facebook-uid", function(err, value){
                     if(!err && value != null && value == event.params.uid){
-                        event.deny("already_connected");
+                        event.deny(ALREADY_CONNECTED);
                     }
                     event.channel.emit(JSON.stringify({type:'ping', data: value}));
                     event.allow();

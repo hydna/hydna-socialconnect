@@ -141,7 +141,6 @@ SocialConnect.prototype.addFriends = function(friends){
 }
 
 SocialConnect.prototype.disconnectFriend = function(id){
-
     if(this._connected_friends[id]){
         this._connected_friends[id].close();
         this._connected_friends[id] = null;
@@ -166,7 +165,7 @@ SocialConnect.prototype.connectFriend = function(id){
 
                 self._message_que[id] = null;
             }
-		    self.onfriendopen && self.onfriendopen(self.getFriendProperties(id));
+            self.onfriendopen && self.onfriendopen(self.getFriendProperties(id));
         }
         
         friendChannel.onclose = function(event){
@@ -201,21 +200,18 @@ SocialConnect.prototype.connectFriend = function(id){
 
 
 SocialConnect.prototype.getConnectedFriends = function(){
-	
-	var friends = [];
-	
-	for(var i in this._connected_friends){
-		if(this._connected_friends[i].readyState === HydnaChannel.OPEN){
-			var friendobj = {id: id};
-			friends.push(this.getFriendProperties(id));
-		}
-	}
-	
-	return friends;
+    var friends = [];
+    for(var i in this._connected_friends){
+        if(this._connected_friends[i].readyState === HydnaChannel.OPEN){
+            var friendobj = {id: id};
+            friends.push(this.getFriendProperties(id));
+        }
+    }
+    return friends;
 }
 
-SocialConnect.prototype.isFriendListed = function( id ){
-	for(var i in this._friends){
+SocialConnect.prototype.isFriendListed = function(id){
+    for(var i in this._friends){
         if(this._friends[i].id === id){
             return true;
         }
@@ -229,13 +225,11 @@ SocialConnect.prototype.getFriendProperties = function(id){
             return this._friends[i];
         }
     }
-
     return null;
 }
 
 SocialConnect.prototype.destroy = function(){
-	
-	if(this._connected){
+    if(this._connected){
         if(this._me_channel !== null){
             this._me_channel.onclose = null;
             this._me_channel.close();
@@ -244,9 +238,9 @@ SocialConnect.prototype.destroy = function(){
 		
         for(var i in this._connected_friends){
             this._connected_friends[i].onclose = null;
-			this._connected_friends[i].close();
-			this._connected_friends[i] = null;
-		}
+            this._connected_friends[i].close();
+            this._connected_friends[i] = null;
+        }
 
         if(this._public_channel !== null){
             this._public_channel.close();
@@ -255,11 +249,11 @@ SocialConnect.prototype.destroy = function(){
 		
         this._message_que = {};
         this._public_connected = false;
-		this._connected = false;
-		this._connecting = false;
-		this._connected_friends = {};
-		this._friends = [];
-	}
+        this._connected = false;
+        this._connecting = false;
+        this._connected_friends = {};
+        this._friends = [];
+    }
 }
 
 return SocialConnect;

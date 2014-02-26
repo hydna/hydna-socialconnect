@@ -14,7 +14,7 @@ This is how it works:
 
 ### Facebook login
 
-The user first logs in with facebook connect and then and approves our application. The users friendslist is fetched to keep track of who the user is connected with.
+The user first logs in with facebook connect and then and approves our application. The user's friendslist is fetched to keep track of who the user is connected with.
 
 ### Connecting to hydna
 

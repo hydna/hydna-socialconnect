@@ -3,7 +3,7 @@ var app = {
         appid: '258402050984945',
         domainaddr: 'socialconnect.hydna.net',
         socialnetwork: 'facebook',
-        permissions: { scope:'read_stream, publish_stream' }
+        permissions: { scope:'public_profile, user_friends' }
     },
     
     facebookchannel: null,
